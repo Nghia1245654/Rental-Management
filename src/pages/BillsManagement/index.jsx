@@ -16,6 +16,7 @@ const Bills = () => {
   const [rooms, setRooms] = useState([]);
   const [settings, setSettings] = useState([]);
   const [deleteBillId, setDeleteBillId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -54,6 +55,7 @@ const Bills = () => {
   const handleDeleteBill = async (Id) => {
     setDeleteBillId(Id);
     try {
+      setDeleteLoading(true);
       console.log("Deleting bill with ID:", Id); // Debug log
       await deleteBills(Id);
       console.log("Bill deleted successfully"); // Debug log
@@ -62,6 +64,7 @@ const Bills = () => {
       console.error("Error deleting bill:", error);
     } finally {
       setDeleteBillId(null);
+      setDeleteLoading(false);
     }
   };
   return (
@@ -84,7 +87,7 @@ const Bills = () => {
         </div>
         <div className="px-6">
           <div className="rounded-lg border">
-            <DataTable data={bills} loading={loading} handleDeleteBill={handleDeleteBill} />
+            <DataTable data={bills} loading={loading} handleDeleteBill={handleDeleteBill} deleteLoading={deleteLoading} />
           </div>
         </div>
       </div>

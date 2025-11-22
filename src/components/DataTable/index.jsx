@@ -11,7 +11,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Edit, Trash2 } from "lucide-react";
 
-export function DataTable({ data = [], loading ,handleDeleteBill}) {
+export function DataTable({ data = [], loading ,handleDeleteBill ,deleteLoading }) {
   return (
     <Table>
       <TableHeader>
@@ -80,8 +80,11 @@ export function DataTable({ data = [], loading ,handleDeleteBill}) {
                         handleDeleteBill(item._id || item.id);
                       }} 
                       className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent"
-                    >
+                    >{deleteLoading ? (
+                      <Spinner className="w-4 h-4 text-red-600 animate-spin" />
+                    ) : (
                       <Trash2 className="w-4 h-4 text-red-600" />
+                    )}
                     </button>
                   </div>
                 </TableCell>
