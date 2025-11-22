@@ -14,7 +14,7 @@ import {
   SelectContent, SelectItem
 } from "@/components/ui/select";
 
-export default function DialogCreateBills ({ open, onOpenChange, data = [], tenants = [], rooms = [], settings = {} }) {
+export default function DialogCreateBills ({ open, onOpenChange, data = [], tenants = [], rooms = [], settings = {}, onSubmit }) {
   // Debug logs
   console.log("DialogCreateBills - settings:", settings);
   console.log("DialogCreateBills - settings type:", typeof settings);
@@ -175,7 +175,7 @@ export default function DialogCreateBills ({ open, onOpenChange, data = [], tena
         </form>
 
         <DialogFooter>
-          <Button type="submit" className="w-full h-11">
+          <Button onClick={onSubmit} type="submit" className="w-full h-11">
             Tạo Hóa Đơn Mới
           </Button>
         </DialogFooter>

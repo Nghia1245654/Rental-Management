@@ -6,7 +6,8 @@ import { getDataTenants } from "@/services/api/tenants";
 import { getDataRooms } from "@/services/api/rooms";
 import React, { useEffect, useState } from "react";
 import { getSettings } from "@/services/api/settings";
-
+import toast from "react-hot-toast";
+import { createBills } from "@/services/api/bills";
 const Bills = () => {
   const [open , setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -29,11 +30,6 @@ const Bills = () => {
           getSettings(),
         ]);
         
-        console.log("Bills Response:", billsResponse); // Debug log
-        console.log("Tenants Response:", tenantsResponse); // Debug log
-        console.log("Rooms Response:", roomsResponse); // Debug log
-        console.log("Settings Response:", settingsResponse); // Debug log
-        
         setBills(billsResponse.data.data || []);
         setTenants(tenantsResponse.data.data || []);
         setRooms(roomsResponse.data.data || []);
@@ -49,7 +45,7 @@ const Bills = () => {
     fetchData();
   }, []);
  
-  const handleCreateBill = () => {
+  const handleOpenBill = () => {
     setOpen(true);
   };
   const handleDeleteBill = async (Id) => {
@@ -66,7 +62,23 @@ const Bills = () => {
       setDeleteBillId(null);
       setDeleteLoading(false);
     }
+
   };
+  const handleCreateBill = async (data) => {
+    try {
+      setLoading(true);
+      console.log("Creating bill with data:", data); // Debug log
+      await createBills(data);
+      console.log("Bill created successfully"); // Debug log
+      setOpen(false);
+      setBills([...bills, data]);
+    } catch (error) {
+      console.error("Error creating bill:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+ 
   return (
     <div>
       <HeaderContent
@@ -74,7 +86,7 @@ const Bills = () => {
         description="Track and manage rental bills"
         buttonText="Create Bill"
         searchPlaceholder="Search by bill number..."
-        onCreate={handleCreateBill}
+        onCreate={handleOpenBill}
         showSearch={false}
         showButton={true}
       />
@@ -87,7 +99,7 @@ const Bills = () => {
         </div>
         <div className="px-6">
           <div className="rounded-lg border">
-            <DataTable data={bills} loading={loading} handleDeleteBill={handleDeleteBill} deleteLoading={deleteLoading} />
+            <DataTable data={bills} loading={loading} handleDeleteBill={handleDeleteBill} deleteLoading={deleteLoading}  />
           </div>
         </div>
       </div>
@@ -98,6 +110,7 @@ const Bills = () => {
         tenants={tenants}
         rooms={rooms}
         settings={settings}
+        handleCreateBill={handleCreateBill}
       />
     </div>
   );
