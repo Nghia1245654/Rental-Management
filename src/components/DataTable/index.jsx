@@ -11,7 +11,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Edit, Trash2 } from "lucide-react";
 
-export function DataTable({ data = [], loading ,handleDeleteBill ,deleteLoading }) {
+export function DataTable({ bills = [], loading ,handleDeleteBill ,deleteLoading, handleOpenEditBill }) {
   return (
     <Table>
       <TableHeader>
@@ -35,7 +35,7 @@ export function DataTable({ data = [], loading ,handleDeleteBill ,deleteLoading 
             </TableCell>
           </TableRow>
         ) : (
-          data.map((item) => {
+          bills.map((item) => {
             const electricityUsage = (item.newElectricityIndex || 0) - (item.oldElectricityIndex || 0);
             const electricityCost = electricityUsage * (item.electricityPrice || 0);
             const waterUsage = (item.newWaterIndex || 0) - (item.oldWaterIndex || 0);
@@ -72,7 +72,12 @@ export function DataTable({ data = [], loading ,handleDeleteBill ,deleteLoading 
                 </TableCell>
                 <TableCell className="text-left">
                   <div className="flex gap-2">
-                    <button className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent">
+                    <button 
+                      onClick={() => {
+                        handleOpenEditBill(item);
+                      }} 
+                      className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent"
+                    >
                       <Edit className="w-4 h-4 text-blue-600" />
                     </button>
                     <button 
