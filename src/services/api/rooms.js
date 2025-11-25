@@ -13,7 +13,7 @@ export const createRoom = async (roomData) => {
 };
 
 export const updateRoom = async (roomId, roomData) => {
-  const response = await apiInstance.put(`/rooms/${roomId}`, roomData);
+  const response = await apiInstance.put(`/rooms?id=${roomId}`, roomData);
   return response;
 };
 

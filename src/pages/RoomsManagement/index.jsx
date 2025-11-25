@@ -30,7 +30,15 @@ const RoomsManagement = () => {
         } catch (error) {
             console.error("Error fetching rooms:", error);
             setError(error);
-            toast.error("Failed to fetch rooms");
+            
+            let errorMessage = "Failed to fetch rooms";
+            if (error.request) {
+                errorMessage = "Network error. Please check your connection.";
+            } else if (error.response) {
+                errorMessage = error.response.data?.message || errorMessage;
+            }
+            
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -68,8 +76,20 @@ const RoomsManagement = () => {
             toast.success("Room created successfully!");
             fetchData();
         } catch (error) {
-            console.error("Error creating room:", error.message);
-            const errorMessage = error.response?.data?.message || "Failed to create room.";
+            console.error("Error creating room:", error);
+            let errorMessage = "Failed to create room.";
+            
+            if (error.response) {
+                // Server responded with error status
+                errorMessage = error.response.data?.message || errorMessage;
+            } else if (error.request) {
+                // Network error (CORS, etc.)
+                errorMessage = "Network error. Please check your connection.";
+            } else {
+                // Other error
+                errorMessage = error.message || errorMessage;
+            }
+            
             toast.error(errorMessage);
         } finally {
             setLoading(false);
@@ -108,8 +128,20 @@ const RoomsManagement = () => {
             toast.success("Room updated successfully!");
             fetchData();
         } catch (error) {
-            console.error("Error updating room:", error.message);
-            const errorMessage = error.response?.data?.message || "Failed to update room.";
+            console.error("Error updating room:", error);
+            let errorMessage = "Failed to update room.";
+            
+            if (error.response) {
+                // Server responded with error status
+                errorMessage = error.response.data?.message || errorMessage;
+            } else if (error.request) {
+                // Network error (CORS, etc.)
+                errorMessage = "Network error. Please check your connection.";
+            } else {
+                // Other error
+                errorMessage = error.message || errorMessage;
+            }
+            
             toast.error(errorMessage);
         } finally {
             setLoading(false);
@@ -130,8 +162,20 @@ const RoomsManagement = () => {
             setRooms(rooms.filter((room) => room._id !== id));
             toast.success("Room deleted successfully!");
         } catch (error) {
-            console.error("Error deleting room:", error.message);
-            const errorMessage = error.response?.data?.message || "Failed to delete room.";
+            console.error("Error deleting room:", error);
+            let errorMessage = "Failed to delete room.";
+            
+            if (error.response) {
+                // Server responded with error status
+                errorMessage = error.response.data?.message || errorMessage;
+            } else if (error.request) {
+                // Network error (CORS, etc.)
+                errorMessage = "Network error. Please check your connection.";
+            } else {
+                // Other error
+                errorMessage = error.message || errorMessage;
+            }
+            
             toast.error(errorMessage);
         } finally {
             setDeletingRoomId(null);

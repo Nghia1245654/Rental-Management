@@ -34,7 +34,15 @@ const Tenants = () => {
         } catch (error) {
             console.error("Error fetching tenants:", error);
             setError(error);
-            toast.error("Failed to fetch tenants");
+            
+            let errorMessage = "Failed to fetch tenants";
+            if (error.request) {
+                errorMessage = "Network error. Please check your connection.";
+            } else if (error.response) {
+                errorMessage = error.response.data?.message || errorMessage;
+            }
+            
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -65,7 +73,7 @@ const Tenants = () => {
                 email: data.email,
                 idCard: String(data.idCard),
                 note: data.note || '',
-                roomId: data.roomId === 'UNASSIGNED' ? null : data.roomId,
+                roomId: data.roomId === 'UNASSIGNED' ? null : (typeof data.roomId === 'object' ? data.roomId?._id : data.roomId),
                 status: data.status || 'active',
                 moveInDate: data.moveInDate || "",
                 moveOutDate: data.moveOutDate || "",
@@ -76,8 +84,20 @@ const Tenants = () => {
             toast.success("Tenant created successfully!");
             fetchData();
         } catch (error) {
-            console.error("Error creating tenant:", error.message);
-            const errorMessage = error.response?.data?.error || error.message || "Failed to create tenant";
+            console.error("Error creating tenant:", error);
+            let errorMessage = "Failed to create tenant";
+            
+            if (error.response) {
+                // Server responded with error status
+                errorMessage = error.response.data?.error || error.response.data?.message || errorMessage;
+            } else if (error.request) {
+                // Network error (CORS, etc.)
+                errorMessage = "Network error. Please check your connection.";
+            } else {
+                // Other error
+                errorMessage = error.message || errorMessage;
+            }
+            
             toast.error(errorMessage);
         } finally {
             setLoading(false);
@@ -85,20 +105,20 @@ const Tenants = () => {
         }
     };
     
-    const handleOpenEditTenant = (data) => {
+    const handleOpenEditTenant = (tenantData) => {
         setIsEdit(true);
-        setEditingTenant(data);
-        setTenantId(data._id);
+        setEditingTenant(tenantData);
+        setTenantId(tenantData._id);
         setFormTenant({
-            name: data.name || '',
-            phone: data.phone || '',
-            email: data.email || '',
-            note: data.note || '',
-            idCard: data.idCard || '',
-            roomId: data.roomId || 'UNASSIGNED',
-            status: data.status || 'active',
-            moveInDate: data.moveInDate ? data.moveInDate.split('T')[0] : '',
-            moveOutDate: data.moveOutDate ? data.moveOutDate.split('T')[0] : ''
+            name: tenantData.name || '',
+            phone: tenantData.phone || '',
+            email: tenantData.email || '',
+            note: tenantData.note || '',
+            idCard: tenantData.idCard || '',
+            roomId: tenantData.roomId ? (typeof tenantData.roomId === 'object' ? tenantData.roomId._id : tenantData.roomId) : 'UNASSIGNED',
+            status: tenantData.status || 'active',
+            moveInDate: tenantData.moveInDate ? tenantData.moveInDate.split('T')[0] : '',
+            moveOutDate: tenantData.moveOutDate ? tenantData.moveOutDate.split('T')[0] : ''
         });
         setOpen(true);
     };
@@ -114,10 +134,10 @@ const Tenants = () => {
                 email: data.email,
                 idCard: String(data.idCard),
                 note: data.note || '',
-                roomId: data.roomId === 'UNASSIGNED' ? null : data.roomId,
+                roomId: data.roomId === 'UNASSIGNED' ? null : (typeof data.roomId === 'object' ? data.roomId?._id : data.roomId),
                 status: data.status || 'active',
-                moveInDate: data.moveInDate || null,
-                moveOutDate: data.moveOutDate || null
+                moveInDate: data.moveInDate || "",
+                moveOutDate: data.moveOutDate || "",
             };
             
             await updateTenant(tenantId, payload);
@@ -125,8 +145,20 @@ const Tenants = () => {
             toast.success("Tenant updated successfully!");
             fetchData();
         } catch (error) {
-            console.error("Error updating tenant:", error.message);
-            const errorMessage = error.response?.data?.error || error.message || "Failed to update tenant";
+            console.error("Error updating tenant:", error);
+            let errorMessage = "Failed to update tenant";
+            
+            if (error.response) {
+                // Server responded with error status
+                errorMessage = error.response.data?.error || error.response.data?.message || errorMessage;
+            } else if (error.request) {
+                // Network error (CORS, etc.)
+                errorMessage = "Network error. Please check your connection.";
+            } else {
+                // Other error
+                errorMessage = error.message || errorMessage;
+            }
+            
             toast.error(errorMessage);
         } finally {
             setLoading(false);
@@ -148,7 +180,20 @@ const Tenants = () => {
             toast.success("Tenant deleted successfully!");
         } catch (error) {
             console.error("Error deleting tenant:", error);
-            toast.error("Failed to delete tenant");
+            let errorMessage = "Failed to delete tenant";
+            
+            if (error.response) {
+                // Server responded with error status
+                errorMessage = error.response.data?.error || error.response.data?.message || errorMessage;
+            } else if (error.request) {
+                // Network error (CORS, etc.)
+                errorMessage = "Network error. Please check your connection.";
+            } else {
+                // Other error
+                errorMessage = error.message || errorMessage;
+            }
+            
+            toast.error(errorMessage);
         } finally {
             setDeletingTenantId(null);
             setDeleteLoading(false);
@@ -172,8 +217,7 @@ const Tenants = () => {
     // Filter tenants based on search
     const filteredTenants = tenants.filter(tenant => 
         tenant.name?.toLowerCase().includes(tenantSearch.toLowerCase()) ||
-        tenant.phone?.toLowerCase().includes(tenantSearch.toLowerCase()) ||
-        tenant.email?.toLowerCase().includes(tenantSearch.toLowerCase())
+        tenant.phone?.toLowerCase().includes(tenantSearch.toLowerCase())
     );
   return (
     <div>
