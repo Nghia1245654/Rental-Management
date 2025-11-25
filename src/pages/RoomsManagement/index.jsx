@@ -57,7 +57,10 @@ const RoomsManagement = () => {
             
             const payload = {
                 ...data,
+                name: data.name || '',
+                status: data.status || 'available',
                 price: Number(data.price),
+                description: data.description || '',
             };
             
             await createRoom(payload);
@@ -95,6 +98,9 @@ const RoomsManagement = () => {
             const payload = {
                 ...data,
                 price: Number(data.price),
+                name: data.name || '',
+                status: data.status || 'available',
+                description: data.description || '',
             };
             
             await updateRoom(roomId, payload);

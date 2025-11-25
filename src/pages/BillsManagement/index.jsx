@@ -72,6 +72,9 @@ const Bills = () => {
     try {
       const payload = {
         ...data,
+        tenantId: data.tenantId?._id || data.tenantId,
+        roomId: data.roomId?._id || data.roomId,
+        month: data.month,
         rent: Number(data.rent),
         newWaterIndex: Number(data.newWaterIndex),
         oldWaterIndex: Number(data.oldWaterIndex),
@@ -135,6 +138,9 @@ const Bills = () => {
       // Chuẩn bị payload giống như create
       const payload = {
         ...data,
+        tenantId: String(data.tenantId?._id || data.tenantId),
+         roomId: String(data.roomId?._id || data.roomId),
+        month: data.month,
         rent: Number(data.rent),
         newWaterIndex: Number(data.newWaterIndex),
         oldWaterIndex: Number(data.oldWaterIndex),
