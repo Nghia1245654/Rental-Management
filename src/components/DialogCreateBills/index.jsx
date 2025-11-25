@@ -17,23 +17,23 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import React, { useState, useEffect } from "react";
+import { Spinner } from "@/components/ui/spinner";
 export default function DialogCreateBills({
   open,
   onOpenChange,
-  data = [],
   tenants = [],
   rooms = [],
   settings = {},
   handleCreateBill,
   handleUpdateBill,
-  handleOpenEditBill,
   isEdit = false,
   editingBill = null,
-  formbill = {},
+  formBill = {},
   handleChange,
+  loading = false,
 }) {
-
-  console.log("formbill : ", formbill);
+  
+  console.log("formBill : ", formBill);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -53,7 +53,7 @@ export default function DialogCreateBills({
                 <label className="text-sm font-medium">Người Thuê *</label>
                 <Select
                   name="tenantId"
-                  value={formbill.tenantId}
+                  value={formBill.tenantId}
                   onValueChange={(e) => handleChange("tenantId", e)}
                 >
                   <SelectTrigger className="w-full">
@@ -73,7 +73,7 @@ export default function DialogCreateBills({
                 <label className="text-sm font-medium">Phòng *</label>
                 <Select
                   name="roomId"
-                  value={formbill.roomId || editingBill?.roomId || ''}
+                  value={formBill.roomId}
                   onValueChange={(e) => handleChange("roomId", e)}
                 >
                   <SelectTrigger className="w-full">
@@ -93,7 +93,7 @@ export default function DialogCreateBills({
             <div className="space-y-2">
               <label className="text-sm font-medium">Tháng *</label>
               <Input
-                value={formbill.month}
+                value={formBill.month}
                 onChange={(e) => handleChange("month", e.target.value)}
                 className="w-full"
                 type="month"
@@ -113,7 +113,7 @@ export default function DialogCreateBills({
                 <div className="space-y-1">
                   <label className="text-sm font-medium">Chỉ Số Cũ (kWh)</label>
                   <Input
-                    value={formbill.oldElectricityIndex}
+                    value={formBill.oldElectricityIndex}
                     onChange={(e) =>
                       handleChange("oldElectricityIndex", e.target.value)
                     }
@@ -131,7 +131,7 @@ export default function DialogCreateBills({
                     Chỉ Số Mới (kWh)
                   </label>
                   <Input
-                    value={formbill.newElectricityIndex}
+                    value={formBill.newElectricityIndex}
                     onChange={(e) =>
                       handleChange("newElectricityIndex", e.target.value)
                     }
@@ -150,7 +150,7 @@ export default function DialogCreateBills({
                 <div className="space-y-1">
                   <label className="text-sm font-medium">Chỉ Số Cũ (m³)</label>
                   <Input
-                    value={formbill.oldWaterIndex}
+                    value={formBill.oldWaterIndex}
                     onChange={(e) =>
                       handleChange("oldWaterIndex", e.target.value)
                     }
@@ -167,7 +167,7 @@ export default function DialogCreateBills({
                 <div className="space-y-1">
                   <label className="text-sm font-medium">Chỉ Số Mới (m³)</label>
                   <Input
-                    value={formbill.newWaterIndex}
+                    value={formBill.newWaterIndex}
                     onChange={(e) =>
                       handleChange("newWaterIndex", e.target.value)
                     }
@@ -193,7 +193,7 @@ export default function DialogCreateBills({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Tiền Thuê Phòng *</label>
                 <Input
-                  value={formbill.rent}
+                  value={formBill.rent}
                   onChange={(e) => handleChange("rent", e.target.value)}
                   type="number"
                   placeholder="2500000"
@@ -205,7 +205,7 @@ export default function DialogCreateBills({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Trạng Thái *</label>
                 <Select
-                  value={formbill.status || editingBill?.status || "unpaid"}
+                  value={formBill.status || "unpaid"}
                   onValueChange={(e) => handleChange("status", e)}
                 >
                   <SelectTrigger>
@@ -225,7 +225,7 @@ export default function DialogCreateBills({
               Ghi Chú
             </h3>
             <Textarea
-              value={formbill.note}
+              value={formBill.note}
               onChange={(e) => handleChange("note", e.target.value)}
               placeholder="Ghi chú thêm về hóa đơn..."
               className="h-20 resize-none"
@@ -235,11 +235,25 @@ export default function DialogCreateBills({
 
         <DialogFooter>
           <Button
-            onClick={() => isEdit ? handleUpdateBill(formbill) : handleCreateBill(formbill)}
+            disabled={loading}
+            onClick={() => isEdit ? handleUpdateBill(formBill) : handleCreateBill(formBill)}
             type="submit"
             className="w-full h-11"
           >
-            {isEdit ? 'Cập Nhật Hóa Đơn' : 'Tạo Hóa Đơn Mới'}
+           {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                {" "}
+
+                <Spinner className="w-5 h-5 text-white" /> 
+                <p className="text-white">
+                  {isEdit ? "Cập Nhật Hóa Đơn" : "Tạo Hóa Đơn Mới"}
+                </p>
+              </div>
+            ) : isEdit ? (
+              "Cập Nhật Hóa Đơn"
+            ) : (
+              "Tạo Hóa Đơn Mới"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

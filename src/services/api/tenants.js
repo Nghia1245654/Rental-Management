@@ -12,8 +12,8 @@ export const createTenant = async (userData) => {
   return response;
 };
 
-export const updateTenant = async (tenantId, userData) => {
-  const response = await apiInstance.put(`/tenants/${tenantId}`, userData);
+export const updateTenant = async (tenantId, data) => {
+  const response = await apiInstance.put(`/tenants/${tenantId}`, data);
   return response;
 };
 

@@ -1,4 +1,4 @@
-import { DataTableRooms } from "@/components/DataTableRooms";
+import DataTable from "@/components/DataTable";
 import HeaderContent from "@/components/HeaderContent";
 import React, { useEffect, useState } from "react";
 import DialogAddRoom from "@/components/DialogAddRoom";
@@ -18,7 +18,6 @@ const RoomsManagement = () => {
     const [isEdit, setIsEdit] = useState(false);
     const [editingRoom, setEditingRoom] = useState(null);
     const [roomId, setRoomId] = useState(null);
-    const [resetTrigger, setResetTrigger] = useState(0);
     
     // Form state
     const [formRoom, setFormRoom] = useState({});
@@ -48,7 +47,6 @@ const RoomsManagement = () => {
     const handleOpenRoom = () => {
         setIsEdit(false);
         setEditingRoom(null);
-        setFormRoom({});
         setOpen(true);
     };
     
@@ -65,11 +63,11 @@ const RoomsManagement = () => {
             await createRoom(payload);
             console.log("Room created successfully");
             toast.success("Room created successfully!");
-            setResetTrigger(prev => prev + 1);
             fetchData();
         } catch (error) {
             console.error("Error creating room:", error.message);
-            toast.error("Failed to create room");
+            const errorMessage = error.response?.data?.message || "Failed to create room.";
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
             setOpen(false);
@@ -105,7 +103,8 @@ const RoomsManagement = () => {
             fetchData();
         } catch (error) {
             console.error("Error updating room:", error.message);
-            toast.error("Failed to update room");
+            const errorMessage = error.response?.data?.message || "Failed to update room.";
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
             setIsEdit(false);
@@ -125,8 +124,9 @@ const RoomsManagement = () => {
             setRooms(rooms.filter((room) => room._id !== id));
             toast.success("Room deleted successfully!");
         } catch (error) {
-            console.error("Error deleting room:", error);
-            toast.error("Failed to delete room");
+            console.error("Error deleting room:", error.message);
+            const errorMessage = error.response?.data?.message || "Failed to delete room.";
+            toast.error(errorMessage);
         } finally {
             setDeletingRoomId(null);
             setDeleteLoading(false);
@@ -159,6 +159,7 @@ const RoomsManagement = () => {
         description="Manage your rental rooms"
         buttonText="Create Room"
         searchPlaceholder="Search by room name..."
+        searchTitle= "Rooms"
         searchValue={roomSearch}
         onSearchChange={handleRoomSearchChange}
         onCreate={handleOpenRoom}
@@ -176,13 +177,14 @@ const RoomsManagement = () => {
         </div>
         <div className="px-6">
           <div className="rounded-lg border">
-            <DataTableRooms
-              rooms={filteredRooms}
+            <DataTable
+              type="rooms"
+              data={filteredRooms}
               loading={loading}
-              handleDeleteRoom={handleDeleteRoom}
+              handleOpenEdit={handleOpenEditRoom}
+              handleDelete={handleDeleteRoom}
               deleteLoading={deleteLoading}
-              handleOpenEditRoom={handleOpenEditRoom}
-              deletingRoomId={deletingRoomId}
+              deletingId={deletingRoomId}
             />
           </div>
         </div>
@@ -196,7 +198,7 @@ const RoomsManagement = () => {
         editingRoom={editingRoom}
         formRoom={formRoom}
         handleChange={handleChange}
-        resetTrigger={resetTrigger}
+        loading={loading}
       />
     </div>
   );

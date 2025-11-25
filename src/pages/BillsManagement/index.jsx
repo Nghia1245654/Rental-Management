@@ -1,4 +1,4 @@
-import { DataTable } from "@/components/DataTable";
+import DataTable from "@/components/DataTable";
 import DialogCreateBills from "@/components/DialogCreateBills";
 import HeaderContent from "@/components/HeaderContent";
 import { getDataBills, deleteBills } from "@/services/api/bills";
@@ -47,6 +47,9 @@ const Bills = () => {
   }, []);
 
   const handleOpenBill = () => {
+    setIsEdit(false);
+    setEditingBill(null);
+    setFormBill({});
     setOpen(true);
   };
   const handleDeleteBill = async (Id) => {
@@ -80,13 +83,15 @@ const Bills = () => {
       await createBills(payload);
       console.log("Bill created successfully");
       //reset form
+      setFormBill({});
       
       toast.success("Bill created successfully!");
       
       fetchData();
     } catch (error) {
       console.error("Error creating bill:", error.message);
-      toast.error("Failed to create bill.", error.message);
+      const errorMessage = error.response?.data?.message || "Failed to create bill.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
       setOpen(false);
@@ -96,10 +101,30 @@ const Bills = () => {
   const [idbill, setIdBill] = useState(null);
   const [resetTrigger, setResetTrigger] = useState(0);
   const [editingBill, setEditingBill] = useState(null);
+  const [formBill, setFormBill] = useState({});
+  
+  const handleChange = (name, value) => {
+    setFormBill({
+      ...formBill,
+      [name]: value,
+    });
+  };
   const handleOpenEditBill = (billData) => {
     setIsEdit(true);
     setEditingBill(billData);
     setIdBill(billData._id);
+    setFormBill({
+      tenantId: billData.tenantId?._id || billData.tenantId,
+      roomId: billData.roomId?._id || billData.roomId,
+      month: billData.month,
+      oldElectricityIndex: billData.oldElectricityIndex || '',
+      newElectricityIndex: billData.newElectricityIndex || '',
+      oldWaterIndex: billData.oldWaterIndex || '',
+      newWaterIndex: billData.newWaterIndex || '',
+      rent: billData.rent || '',
+      status: billData.status || 'unpaid',
+      note: billData.note || ''
+    });
     setOpen(true);
   };
   const handleUpdateBill = async (data) => {
@@ -122,12 +147,14 @@ const Bills = () => {
       fetchData();
     } catch (error) {
       console.error("Error updating bill:", error.message);
-      toast.error("Failed to update bill.");
+      const errorMessage = error.response?.data?.message || "Failed to update bill.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
       setIsEdit(false);
       setIdBill(null);
       setEditingBill(null);
+      setFormBill({});
       setOpen(false);
     }
   };
@@ -153,11 +180,13 @@ const Bills = () => {
         <div className="px-6">
           <div className="rounded-lg border">
             <DataTable
-              bills={bills}
+              type="bills"
+              data={bills}
               loading={loading}
-              handleDeleteBill={handleDeleteBill}
+              handleOpenEdit={handleOpenEditBill}
+              handleDelete={handleDeleteBill}
               deleteLoading={deleteLoading}
-              handleOpenEditBill={handleOpenEditBill}
+              deletingId={deleteBillId}
             />
           </div>
         </div>
@@ -165,15 +194,16 @@ const Bills = () => {
       <DialogCreateBills
         open={open}
         onOpenChange={setOpen}
-        data={bills}
         tenants={tenants}
         rooms={rooms}
         settings={settings}
         handleCreateBill={handleCreateBill}
         handleUpdateBill={handleUpdateBill}
-        handleOpenEditBill={handleOpenEditBill}
         isEdit={isEdit}
         editingBill={editingBill}
+        formBill={formBill}
+        handleChange={handleChange}
+        loading={loading}
       />
     </div>
   );

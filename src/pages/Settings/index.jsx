@@ -1,4 +1,3 @@
-import { DataTable } from "@/components/DataTable";
 import HeaderContent from "@/components/HeaderContent";
 import SettingsPanel from "@/components/SettingsPanel";
 import { getSettings, updateSettings as updateSettingsAPI } from "@/services/api/settings";

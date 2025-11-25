@@ -1,27 +1,191 @@
-import { DataTable } from "@/components/DataTable";
+import DataTable from "@/components/DataTable";
 import HeaderContent from "@/components/HeaderContent";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import DialogAddTenant from "@/components/DialogAddTenant";
+import { getDataTenants, createTenant, updateTenant, deleteTenant } from "@/services/api/tenants";
+import toast from "react-hot-toast";
+import { getDataRooms } from "@/services/api/rooms";
+
 
 const Tenants = () => {
-    const [tenantSearch, setTenantSearch] = React.useState("");
-    const [data, setData] = React.useState([]);
+    const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [tenants, setTenants] = useState([]);
+    const [deletingTenantId, setDeletingTenantId] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [tenantSearch, setTenantSearch] = useState("");
+        const [rooms, setRooms] = useState([]);
+    // Edit states
+    const [isEdit, setIsEdit] = useState(false);
+    const [editingTenant, setEditingTenant] = useState(null);
+    const [tenantId, setTenantId] = useState(null);
+    
+    // Form state
+    const [formTenant, setFormTenant] = useState({});
+    
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const tenantsResponse = await getDataTenants();
+            setTenants(tenantsResponse.data.data || []);
+            const roomsResponse = await getDataRooms();
+            setRooms(roomsResponse.data.data || []);
+        } catch (error) {
+            console.error("Error fetching tenants:", error);
+            setError(error);
+            toast.error("Failed to fetch tenants");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
+        fetchData();
+    }, []);
+    
     const handleTenantSearchChange = (e) => {
         setTenantSearch(e.target.value);
-    }
-    const handleCreateTenant = () => {
-        // Logic to handle tenant creation
-        console.log("Create Tenant button clicked");
-    }
+    };
+    
+    const handleOpenTenant = () => {
+        setIsEdit(false);
+        setEditingTenant(null);
+        setOpen(true);
+    };
+    
+    const handleCreateTenant = async (data) => {
+        try {
+            setLoading(true);
+            console.log("Creating tenant with data:", data);
+            
+            const payload = {
+                name: data.name,
+                phone: data.phone,
+                email: data.email,
+                idCard: String(data.idCard),
+                note: data.note || '',
+                roomId: data.roomId === 'UNASSIGNED' ? null : data.roomId,
+                status: data.status || 'active',
+                moveInDate: data.moveInDate || null,
+                moveOutDate: data.moveOutDate || null
+            };
+            
+            await createTenant(payload);
+            console.log("Tenant created successfully");
+            toast.success("Tenant created successfully!");
+            fetchData();
+        } catch (error) {
+            console.error("Error creating tenant:", error.message);
+            const errorMessage = error.response?.data?.error || error.message || "Failed to create tenant";
+            toast.error(errorMessage);
+        } finally {
+            setLoading(false);
+            setOpen(false);
+        }
+    };
+    
+    const handleOpenEditTenant = (data) => {
+        setIsEdit(true);
+        setEditingTenant(data);
+        setTenantId(data._id);
+        setFormTenant({
+            name: data.name || '',
+            phone: data.phone || '',
+            email: data.email || '',
+            note: data.note || '',
+            idCard: data.idCard || '',
+            roomId: data.roomId || 'UNASSIGNED',
+            status: data.status || 'active',
+            moveInDate: data.moveInDate ? data.moveInDate.split('T')[0] : '',
+            moveOutDate: data.moveOutDate ? data.moveOutDate.split('T')[0] : ''
+        });
+        setOpen(true);
+    };
+    
+    const handleUpdateTenant = async (data) => {
+        try {
+            setLoading(true);
+            console.log("Updating tenant with data:", data);
+            
+            const payload = {
+                name: data.name,
+                phone: data.phone,
+                email: data.email,
+                idCard: String(data.idCard),
+                note: data.note || '',
+                roomId: data.roomId === 'UNASSIGNED' ? null : data.roomId,
+                status: data.status || 'active',
+                moveInDate: data.moveInDate || null,
+                moveOutDate: data.moveOutDate || null
+            };
+            
+            await updateTenant(tenantId, payload);
+            console.log("Tenant updated successfully");
+            toast.success("Tenant updated successfully!");
+            fetchData();
+        } catch (error) {
+            console.error("Error updating tenant:", error.message);
+            const errorMessage = error.response?.data?.error || error.message || "Failed to update tenant";
+            toast.error(errorMessage);
+        } finally {
+            setLoading(false);
+            setIsEdit(false);
+            setTenantId(null);
+            setEditingTenant(null);
+            setOpen(false);
+        }
+    };
+    
+    const handleDeleteTenant = async (id) => {
+        setDeletingTenantId(id);
+        try {
+            setDeleteLoading(true);
+            console.log("Deleting tenant with ID:", id);
+            await deleteTenant(id);
+            console.log("Tenant deleted successfully");
+            setTenants(tenants.filter((tenant) => tenant._id !== id));
+            toast.success("Tenant deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting tenant:", error);
+            toast.error("Failed to delete tenant");
+        } finally {
+            setDeletingTenantId(null);
+            setDeleteLoading(false);
+        }
+    };
+    
+    const handleChange = (name, value) => {
+        setFormTenant({
+            ...formTenant,
+            [name]: value,
+        });
+    };
+    
+    // Reset form khi dialog đóng
+    useEffect(() => {
+        if (!open) {
+            setFormTenant({});
+        }
+    }, [open]);
+    
+    // Filter tenants based on search
+    const filteredTenants = tenants.filter(tenant => 
+        tenant.name?.toLowerCase().includes(tenantSearch.toLowerCase()) ||
+        tenant.phone?.toLowerCase().includes(tenantSearch.toLowerCase()) ||
+        tenant.email?.toLowerCase().includes(tenantSearch.toLowerCase())
+    );
   return (
     <div>
       <HeaderContent 
         title="Tenants Management"
         description="Manage your tenants"
-        buttonText="Add Tenant"
-        searchPlaceholder="Search by name or phone..."
+        buttonText="Create Tenant"
+        searchPlaceholder="Search by name, phone, email..."
+        searchTitle="Tenants"
         searchValue={tenantSearch}
         onSearchChange={handleTenantSearchChange}
-        onCreate={handleCreateTenant}
+        onCreate={handleOpenTenant}
         showSearch={true}
         showButton={true}
       />
@@ -36,10 +200,30 @@ const Tenants = () => {
         </div>
         <div className="px-6">
           <div className="rounded-lg border">
-            <DataTable data={data} />
+            <DataTable
+              type="tenants"
+              data={filteredTenants}
+              loading={loading}
+              handleOpenEdit={handleOpenEditTenant}
+              handleDelete={handleDeleteTenant}
+              deleteLoading={deleteLoading}
+              deletingId={deletingTenantId}
+            />
           </div>
         </div>
       </div>
+      <DialogAddTenant
+        open={open}
+        onOpenChange={setOpen}
+        handleCreateTenant={handleCreateTenant}
+        handleUpdateTenant={handleUpdateTenant}
+        isEdit={isEdit}
+        editingTenant={editingTenant}
+        formTenant={formTenant}
+        handleChange={handleChange}
+        rooms={rooms}
+        loading={loading}
+      />
     </div>
   );
 };

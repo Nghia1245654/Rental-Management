@@ -16,7 +16,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import React, { useEffect } from "react";
-
+import { Spinner } from "@/components/ui/spinner";
 export default function DialogAddRoom({
   open,
   onOpenChange,
@@ -26,16 +26,8 @@ export default function DialogAddRoom({
   editingRoom = null,
   formRoom = {},
   handleChange,
-  resetTrigger,
+  loading = false,
 }) {
-  // Reset form khi có trigger từ component cha
-  useEffect(() => {
-    if (resetTrigger && !isEdit) {
-      // Reset sẽ được handle bởi parent component
-    }
-  }, [resetTrigger, isEdit]);
-
-  console.log("formRoom:", formRoom);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -85,7 +77,6 @@ export default function DialogAddRoom({
                 <SelectContent>
                   <SelectItem value="available">Còn Trống</SelectItem>
                   <SelectItem value="occupied">Đã Thuê</SelectItem>
-                  <SelectItem value="maintenance">Bảo Trì</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -106,11 +97,25 @@ export default function DialogAddRoom({
 
         <DialogFooter>
           <Button
+            disabled={loading}
             onClick={() => isEdit ? handleUpdateRoom(formRoom) : handleCreateRoom(formRoom)}
             type="submit"
             className="w-full h-11"
           >
-            {isEdit ? 'Cập Nhật Phòng' : 'Tạo Phòng Mới'}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                {" "}
+
+                <Spinner className="w-5 h-5 text-white" /> 
+                <p className="text-white">
+                  {isEdit ? "Cập Nhật Phòng" : "Tạo Phòng Mới"}
+                </p>
+              </div>
+            ) : isEdit ? (
+              "Cập Nhật Phòng"
+            ) : (
+              "Tạo Phòng Mới"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

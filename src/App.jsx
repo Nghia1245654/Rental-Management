@@ -8,6 +8,7 @@ import BillsManagement from './pages/BillsManagement/index.jsx'
 import { Toaster } from 'react-hot-toast'
 import Tenants from './pages/Tenants/index.jsx'
 import DashboardManagement from './pages/Dashboard/index.jsx'
+import { Navigate } from 'react-router-dom'
 function App() {
 
   return (
@@ -16,10 +17,11 @@ function App() {
           <Toaster  className="top-20 right-20" />
       <Routes>
         <Route path="/" element={<Layout />}>
+          <Route index element={<DashboardManagement />} />
+          <Route path="dashboard" element={<DashboardManagement />} />
           <Route path="settings" element={<Settings />} />
           <Route path="RoomsManagement" element={<RoomsManagement />} />
           <Route path="bills" element={<BillsManagement />} />
-          <Route path="dashboard" element={<DashboardManagement />} />
           <Route path="tenants" element={<Tenants />} />
         </Route>
       </Routes>
