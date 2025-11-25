@@ -67,8 +67,8 @@ const Tenants = () => {
                 note: data.note || '',
                 roomId: data.roomId === 'UNASSIGNED' ? null : data.roomId,
                 status: data.status || 'active',
-                moveInDate: data.moveInDate || null,
-                moveOutDate: data.moveOutDate || null
+                moveInDate: data.moveInDate || "",
+                moveOutDate: data.moveOutDate || "",
             };
             
             await createTenant(payload);
